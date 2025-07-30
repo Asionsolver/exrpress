@@ -1,0 +1,27 @@
+{
+  "name": "exrpress",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Asionsolver/exrpress.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Asionsolver/exrpress/issues"
+  },
+  "homepage": "https://github.com/Asionsolver/exrpress#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "engines": {
+    "node": ">=24.3.0"
+  }
+}
