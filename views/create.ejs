@@ -368,7 +368,7 @@
             </p>
         </div>
 
-        <form action="/create" method="post" id="pollForm">
+        <form action="/create" method="POST" id="pollForm">
             <div class="form-group">
                 <label for="pollTitle">Poll Title</label>
                 <input type="text" id="pollTitle" name="title" placeholder="What would you like to ask?" required>
@@ -388,11 +388,11 @@
 
             <div class="options-section" id="optionsContainer">
                 <div class="option-group">
-                    <input type="text" class="poll-option" placeholder="Option 1" required>
+                    <input type="text" class="poll-option" placeholder="Option 1" required name="options">
                     <button type="button" class="option-remove" style="display:none;">Remove</button>
                 </div>
                 <div class="option-group">
-                    <input type="text" class="poll-option" placeholder="Option 2" required>
+                    <input type="text" class="poll-option" placeholder="Option 2" required name="options">
                     <button type="button" class="option-remove" style="display:none;">Remove</button>
                 </div>
             </div>
@@ -421,7 +421,7 @@
                 var count = optionsContainer.querySelectorAll(".option-group").length + 1;
                 var newGroup = document.createElement("div");
                 newGroup.className = "option-group";
-                newGroup.innerHTML = '<input type="text" class="poll-option" placeholder="Option ' + count + '" required>\n        <button type="button" class="option-remove">Remove</button>';
+                newGroup.innerHTML = '<input type="text" class="poll-option" placeholder="Option ' + count + '" required name="options">\n        <button type="button" class="option-remove">Remove</button>';
 
                 var removeBtn = newGroup.querySelector(".option-remove");
                 removeBtn.addEventListener("click", function (e) {
@@ -453,29 +453,7 @@
                 });
             });
 
-            // Form submission
-            pollForm.addEventListener("submit", function (e) {
-                e.preventDefault();
-                var title = document.getElementById("pollTitle").value;
-                var description = document.getElementById("pollDescription").value;
-                var options = Array.from(document.querySelectorAll(".poll-option")).map(function (inp) {
-                    return inp.value.trim();
-                }).filter(function (val) {
-                    return val.length > 0;
-                });
 
-                if (options.length < 2) {
-                    alert("Please add at least 2 options");
-                    return;
-                }
-
-                console.log({
-                    title: title,
-                    description: description,
-                    options: options
-                });
-                alert("Poll created! (See console for details)");
-            });
         })();
     </script>
 </body>

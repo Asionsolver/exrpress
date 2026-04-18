@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const morgan = require("morgan");
 
 const app = express();
-
+const pollController = require("./controllers/pollController");
 app.use(morgan("dev"));
 app.use(
   express.urlencoded({
@@ -20,9 +20,8 @@ app.get("/", (req, res) => {
   res.render("home");
 });
 
-app.get("/create", (req, res) => {
-  res.render("create");
-});
+app.get("/create", pollController.createPollGetController);
+app.post("/create", pollController.createPollPostController);
 
 mongoose
   .connect("mongodb://localhost:27017/poll")

@@ -3,15 +3,18 @@ const { Schema, model } = require("mongoose");
 const pollSchema = new Schema({
   title: {
     type: String,
-    require: true,
+    required: true,
     trim: true,
   },
   description: {
     type: String,
-    require: true,
+    required: true,
     trim: true,
   },
-  totalVote: Number,
+  totalVote: {
+    type: Number,
+    default: 0,
+  },
   options: {
     type: [
       {
@@ -24,4 +27,4 @@ const pollSchema = new Schema({
 
 const Poll = model("Poll", pollSchema);
 
-exports.modules = Poll;
+module.exports = Poll;
