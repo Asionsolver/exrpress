@@ -21,6 +21,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/create", pollController.createPollGetController);
+app.get("/polls", pollController.getAllPolls);
 app.post("/create", pollController.createPollPostController);
 
 mongoose
