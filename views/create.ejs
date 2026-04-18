@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create a New Poll</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-ink: #06141b;
+            --bg-deep: #0a2430;
+            --bg-surface: rgba(255, 255, 255, 0.08);
+            --card-border: rgba(255, 255, 255, 0.2);
+            --text-main: #eff8ff;
+            --text-muted: #b8d0df;
+            --text-label: #d4ecf8;
+            --accent: #00c2a8;
+            --accent-strong: #00a08c;
+            --soft-glow: rgba(0, 194, 168, 0.24);
+            --error: #ff6b6b;
+            --focus-glow: rgba(0, 194, 168, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            font-family: "Space Grotesk", sans-serif;
+            color: var(--text-main);
+            background:
+                radial-gradient(1200px 700px at 90% -10%, rgba(0, 194, 168, 0.22), transparent 60%),
+                radial-gradient(900px 560px at 8% 110%, rgba(255, 170, 98, 0.18), transparent 56%),
+                linear-gradient(135deg, var(--bg-ink), var(--bg-deep));
+            overflow-x: hidden;
+        }
+
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(48px);
+            opacity: 0.5;
+            z-index: 0;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .blob-a {
+            width: 200px;
+            height: 200px;
+            top: 12%;
+            left: 5%;
+            background: rgba(0, 194, 168, 0.24);
+        }
+
+        .blob-b {
+            width: 240px;
+            height: 240px;
+            right: 5%;
+            bottom: 8%;
+            background: rgba(255, 170, 98, 0.2);
+            animation-delay: 2s;
+        }
+
+        .form-container {
+            width: min(720px, 100%);
+            position: relative;
+            z-index: 1;
+            padding: clamp(32px, 4vw, 48px);
+            border: 1px solid var(--card-border);
+            border-radius: 28px;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+            backdrop-filter: blur(10px);
+            box-shadow:
+                0 24px 80px rgba(2, 18, 24, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            animation: slideUp 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+        }
+
+        .form-header {
+            margin-bottom: 32px;
+        }
+
+        .form-title {
+            font-size: clamp(1.8rem, 4vw, 2.4rem);
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--text-main), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .form-subtitle {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group.section-title {
+            margin-top: 28px;
+            margin-bottom: 16px;
+        }
+
+        .form-group.section-title label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-label);
+            opacity: 0.9;
+        }
+
+        label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-label);
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        input[type="text"]::placeholder,
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        input[type="text"]:hover,
+        textarea:hover {
+            border-color: rgba(255, 255, 255, 0.35);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 0 3px var(--focus-glow);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            line-height: 1.6;
+        }
+
+        .options-section {
+            border: 1px dashed rgba(0, 194, 168, 0.3);
+            border-radius: 14px;
+            padding: 20px;
+            background: rgba(0, 194, 168, 0.05);
+            margin-bottom: 24px;
+        }
+
+        .option-group {
+            position: relative;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .option-group input {
+            flex: 1;
+        }
+
+        .option-remove {
+            appearance: none;
+            padding: 10px 12px;
+            margin-top: 2px;
+            border: 1px solid rgba(255, 107, 107, 0.4);
+            border-radius: 10px;
+            background: rgba(255, 107, 107, 0.12);
+            color: var(--error);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            opacity: 0;
+        }
+
+        .option-group:hover .option-remove {
+            opacity: 1;
+        }
+
+        .option-remove:hover {
+            background: rgba(255, 107, 107, 0.24);
+            border-color: rgba(255, 107, 107, 0.6);
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 28px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn {
+            appearance: none;
+            padding: 12px 22px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: capitalize;
+            outline: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+            color: #05232a;
+            box-shadow: 0 8px 28px var(--soft-glow);
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 36px var(--soft-glow);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.24);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.14);
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
+        .btn-secondary:active {
+            transform: translateY(0);
+        }
+
+        .info-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            opacity: 0.8;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-12px);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .option-group {
+            animation: fadeIn 300ms ease-out both;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 16px;
+            }
+
+            .form-container {
+                border-radius: 20px;
+                padding: clamp(24px, 3vw, 32px);
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                min-width: unset;
+            }
+
+            .option-remove {
+                opacity: 1;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="blob blob-a" aria-hidden="true"></div>
+    <div class="blob blob-b" aria-hidden="true"></div>
+
+    <main class="form-container">
+        <div class="form-header">
+            <h1 class="form-title">Create A New Poll</h1>
+            <p class="form-subtitle">Build your poll in minutes. Add a title, description, and options to get started.
+            </p>
+        </div>
+
+        <form action="/create" method="post" id="pollForm">
+            <div class="form-group">
+                <label for="pollTitle">Poll Title</label>
+                <input type="text" id="pollTitle" name="title" placeholder="What would you like to ask?" required>
+                <p class="info-text">A clear, concise title helps get better responses</p>
+            </div>
+
+            <div class="form-group">
+                <label for="pollDescription">Description (Optional)</label>
+                <textarea id="pollDescription" name="description"
+                    placeholder="Add context or details about your poll here..."></textarea>
+                <p class="info-text">Help respondents understand the context</p>
+            </div>
+
+            <div class="form-group section-title">
+                <label>Poll Options</label>
+            </div>
+
+            <div class="options-section" id="optionsContainer">
+                <div class="option-group">
+                    <input type="text" class="poll-option" placeholder="Option 1" required>
+                    <button type="button" class="option-remove" style="display:none;">Remove</button>
+                </div>
+                <div class="option-group">
+                    <input type="text" class="poll-option" placeholder="Option 2" required>
+                    <button type="button" class="option-remove" style="display:none;">Remove</button>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-secondary" id="addOptionBtn">+ Add More Option</button>
+
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">Create Poll</button>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        (function () {
+            var form = document.getElementById("pollForm");
+            var addOptionBtn = document.getElementById("addOptionBtn");
+            var optionsContainer = document.getElementById("optionsContainer");
+            var pollForm = document.getElementById("pollForm");
+
+            addOptionBtn.addEventListener("click", function (e) {
+                e.preventDefault();
+                addOptionField();
+            });
+
+            function addOptionField() {
+                var count = optionsContainer.querySelectorAll(".option-group").length + 1;
+                var newGroup = document.createElement("div");
+                newGroup.className = "option-group";
+                newGroup.innerHTML = '<input type="text" class="poll-option" placeholder="Option ' + count + '" required>\n        <button type="button" class="option-remove">Remove</button>';
+
+                var removeBtn = newGroup.querySelector(".option-remove");
+                removeBtn.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    newGroup.remove();
+                    updateRemoveButtons();
+                });
+
+                optionsContainer.appendChild(newGroup);
+                updateRemoveButtons();
+                newGroup.querySelector("input").focus();
+            }
+
+            function updateRemoveButtons() {
+                var groups = optionsContainer.querySelectorAll(".option-group");
+                groups.forEach(function (group, index) {
+                    var removeBtn = group.querySelector(".option-remove");
+                    removeBtn.style.display = groups.length > 2 ? "block" : "none";
+                });
+            }
+
+            // Initialize remove buttons
+            var initialRemoveButtons = optionsContainer.querySelectorAll(".option-remove");
+            initialRemoveButtons.forEach(function (btn) {
+                btn.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    btn.closest(".option-group").remove();
+                    updateRemoveButtons();
+                });
+            });
+
+            // Form submission
+            pollForm.addEventListener("submit", function (e) {
+                e.preventDefault();
+                var title = document.getElementById("pollTitle").value;
+                var description = document.getElementById("pollDescription").value;
+                var options = Array.from(document.querySelectorAll(".poll-option")).map(function (inp) {
+                    return inp.value.trim();
+                }).filter(function (val) {
+                    return val.length > 0;
+                });
+
+                if (options.length < 2) {
+                    alert("Please add at least 2 options");
+                    return;
+                }
+
+                console.log({
+                    title: title,
+                    description: description,
+                    options: options
+                });
+                alert("Poll created! (See console for details)");
+            });
+        })();
+    </script>
+</body>
+
+</html>
