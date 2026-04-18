@@ -24,6 +24,7 @@ app.get("/create", pollController.createPollGetController);
 app.get("/polls", pollController.getAllPolls);
 app.post("/create", pollController.createPollPostController);
 app.get("/polls/:id", pollController.viewPollGetController);
+app.post("/polls/:id", pollController.viewPollPostController);
 
 mongoose
   .connect("mongodb://localhost:27017/poll")
