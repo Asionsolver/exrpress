@@ -19,9 +19,15 @@
   },
   "homepage": "https://github.com/Asionsolver/exrpress#readme",
   "dependencies": {
-    "express": "^5.1.0"
+    "ejs": "^5.0.2",
+    "express": "^5.1.0",
+    "mongoose": "^9.4.1",
+    "morgan": "^1.10.1"
   },
   "engines": {
     "node": ">=24.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }

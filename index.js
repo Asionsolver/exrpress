@@ -1,66 +1,32 @@
 const express = require("express");
-const routes = require("./routes/routes.js");
+const mongoose = require("mongoose");
+const morgan = require("morgan");
 
 const app = express();
-const port = 4000;
 
-app.use(express.static("./public"));
+app.use(morgan("dev"));
+app.use(
+  express.urlencoded({
+    extended: true,
+  }),
+);
+
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-// app.use(globalMiddleware);
-app.use(routes);
 
-// Global Error Handler
-app.use((req, res, next) => {
-  // res.status(404).send("Page Not Found");
-  const error = new Error(`<h1>Page Not Found</h1>`);
-  error.status = 404;
-  next(error);
+app.set("view engine", "ejs");
+
+app.get("/", (req, res) => {
+  // res.json("Hello! programmer. I am a root route.");
+  res.render("home");
 });
 
-app.use((error, req, res, next) => {
-  console.log("Error", error);
-  if (error.status) {
-    res.status(error.status).send(`<h1>${error.message}</h1>`);
-  }
-
-  res.status(500).send({
-    message: "Internal Server Error",
+mongoose
+  .connect("mongodb://localhost:27017/poll")
+  .then(() => {
+    app.listen(8000, () => {
+      console.log("Application is ready to serve on port 8000");
+    });
+  })
+  .catch((e) => {
+    console.log(e);
   });
-});
-
-function globalMiddleware(req, res, next) {
-  console.log("Global middleware executed");
-  console.log(`Request Method: ${req.method}`);
-  console.log(`Request URL: ${req.url}`);
-
-  console.log(req.query);
-  // You can add more logic here if needed
-  if (req.query.bad) {
-    return res.status(400).send("Bad Request");
-  }
-
-  next();
-}
-
-function localMiddleware(req, res, next) {
-  console.log("Local middleware executed for this route");
-  console.log(`Request Method: ${req.method}`);
-  console.log(`Request URL: ${req.url}`);
-  // You can add more logic here if needed
-  if (req.query.error) {
-    return res.status(500).send("Internal Server Error");
-  }
-
-  next();
-}
-
-// function handler(req, res, next) {
-//   // read request object
-//   // process request
-//   // response back the result
-// }
-
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
