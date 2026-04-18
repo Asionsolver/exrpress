@@ -292,6 +292,12 @@
             background: rgba(255, 255, 255, 0.06);
         }
 
+        .option-item.is-voted {
+            border-color: rgba(0, 194, 168, 0.45);
+            background: linear-gradient(90deg, rgba(0, 194, 168, 0.16), rgba(255, 255, 255, 0.06));
+            box-shadow: 0 10px 24px rgba(0, 194, 168, 0.16);
+        }
+
         .option-radio {
             width: 18px;
             height: 18px;
@@ -302,6 +308,17 @@
         .option-text {
             flex: 1;
             color: var(--text-main);
+        }
+
+        .option-stats {
+            flex: 0 0 auto;
+            font-size: 0.82rem;
+            color: var(--text-soft);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 999px;
+            padding: 6px 10px;
+            white-space: nowrap;
         }
 
         .actions {
@@ -456,133 +473,172 @@
 
             <% if (poll) { %>
                 <% const pollResult=Array.isArray(result) ? result : []; %>
-                    <section class="hero-card">
-                        <h1 class="page-title">
-                            <%= poll.title %>
-                        </h1>
-                        <% if (poll.description) { %>
-                            <p class="page-subtitle">
-                                <%= poll.description %>
-                            </p>
-                            <% } else { %>
-                                <p class="page-subtitle">No description was provided for this poll.</p>
-                                <% } %>
+                    <% const shouldShowPercentage=showPercentage===true; %>
+                        <% const selectedId=typeof selectedOptionId==="string" ? selectedOptionId : "" ; %>
+                            <% const resultMap={}; %>
+                                <% pollResult.forEach(function(item) { resultMap[String(item._id)]={ vote: item.vote,
+                                    percentage: item.percentage }; }); %>
+                                    <section class="hero-card">
+                                        <h1 class="page-title">
+                                            <%= poll.title %>
+                                        </h1>
+                                        <% if (poll.description) { %>
+                                            <p class="page-subtitle">
+                                                <%= poll.description %>
+                                            </p>
+                                            <% } else { %>
+                                                <p class="page-subtitle">No description was provided for this poll.</p>
+                                                <% } %>
 
-                                    <div class="details-grid">
-                                        <div class="panel">
-                                            <h2 class="panel-title">What is Your Opinion</h2>
+                                                    <div class="details-grid">
+                                                        <div class="panel">
+                                                            <h2 class="panel-title">What is Your Opinion</h2>
 
-                                            <form action="/polls/<%= poll._id %>" method="POST">
-                                                <div class="options-list">
-                                                    <% if (poll.options && poll.options.length> 0) { %>
-                                                        <% poll.options.forEach(function(option) { %>
-                                                            <label class="option-item">
-                                                                <input class="option-radio" type="radio"
-                                                                    name="pollOption" value="<%= option._id %>">
-                                                                <span class="option-text">
-                                                                    <%= option.name %>
-                                                                </span>
-                                                            </label>
-                                                            <% }); %>
-                                                                <% } else { %>
-                                                                    <div class="empty-state">
-                                                                        <h2>No options available</h2>
-                                                                        <p>This poll currently does not have any voting
-                                                                            options.</p>
+                                                            <form action="/polls/<%= poll._id %>" method="POST">
+                                                                <div class="options-list">
+                                                                    <% if (poll.options && poll.options.length> 0) { %>
+                                                                        <% poll.options.forEach(function(option) { %>
+                                                                            <% const optionKey=String(option._id); %>
+                                                                                <% const
+                                                                                    optionResult=resultMap[optionKey] ||
+                                                                                    { vote: 0, percentage: 0 }; %>
+                                                                                    <label
+                                                                                        class="option-item <%= selectedId === optionKey ? 'is-voted' : '' %>">
+                                                                                        <input class="option-radio"
+                                                                                            type="radio"
+                                                                                            name="pollOption"
+                                                                                            value="<%= option._id %>">
+                                                                                        <span class="option-text">
+                                                                                            <%= option.name %>
+                                                                                        </span>
+                                                                                        <% if (shouldShowPercentage) {
+                                                                                            %>
+                                                                                            <span class="option-stats">
+                                                                                                <%= optionResult.vote %>
+                                                                                                    vote • <%=
+                                                                                                        optionResult.percentage.toFixed(1)
+                                                                                                        %>%
+                                                                                            </span>
+                                                                                            <% } %>
+                                                                                    </label>
+                                                                                    <% }); %>
+                                                                                        <% } else { %>
+                                                                                            <div class="empty-state">
+                                                                                                <h2>No options available
+                                                                                                </h2>
+                                                                                                <p>This poll currently
+                                                                                                    does not have any
+                                                                                                    voting
+                                                                                                    options.</p>
+                                                                                            </div>
+                                                                                            <% } %>
+                                                                </div>
+
+                                                                <% if (poll.options && poll.options.length> 0) { %>
+                                                                    <div class="actions">
+                                                                        <button class="btn btn-primary"
+                                                                            type="submit">Submit Your
+                                                                            Opinion</button>
+                                                                        <a class="btn btn-secondary" href="/polls">View
+                                                                            All Polls</a>
                                                                     </div>
                                                                     <% } %>
-                                                </div>
-
-                                                <% if (poll.options && poll.options.length> 0) { %>
-                                                    <div class="actions">
-                                                        <button class="btn btn-primary" type="submit">Submit Your
-                                                            Opinion</button>
-                                                        <a class="btn btn-secondary" href="/polls">View All Polls</a>
-                                                    </div>
-                                                    <% } %>
-                                            </form>
-                                        </div>
-
-                                        <aside class="panel">
-                                            <h2 class="panel-title">Live Results</h2>
-                                            <div class="stats-head">
-                                                <div class="stats-box">
-                                                    <span class="stats-label">Total Votes</span>
-                                                    <span class="stats-value">
-                                                        <%= poll.totalVote || 0 %>
-                                                    </span>
-                                                </div>
-                                                <div class="stats-box">
-                                                    <span class="stats-label">Total Options</span>
-                                                    <span class="stats-value">
-                                                        <%= poll.options ? poll.options.length : 0 %>
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            <div class="results-list">
-                                                <% if (pollResult.length> 0) { %>
-                                                    <% pollResult.forEach(function(item) { %>
-                                                        <div class="result-item">
-                                                            <div class="result-top">
-                                                                <span class="result-name">
-                                                                    <%= item.name %>
-                                                                </span>
-                                                                <span class="result-numbers">
-                                                                    <%= item.vote %> vote • <%=
-                                                                            item.percentage.toFixed(1) %>%
-                                                                </span>
-                                                            </div>
-                                                            <div class="progress-track">
-                                                                <div class="progress-bar"
-                                                                    data-percentage="<%= item.percentage %>"></div>
-                                                            </div>
+                                                            </form>
                                                         </div>
-                                                        <% }); %>
-                                                            <% } else { %>
-                                                                <div class="empty-state">
-                                                                    <h2>No result yet</h2>
-                                                                    <p>Vote distribution will appear here once
-                                                                        participants submit their opinions.</p>
-                                                                </div>
-                                                                <% } %>
-                                            </div>
 
-                                            <h2 class="panel-title">Poll Summary</h2>
-                                            <div class="meta-list">
-                                                <div class="meta-item">
-                                                    <span class="meta-label">Poll Title</span>
-                                                    <div class="meta-value">
-                                                        <%= poll.title %>
+                                                        <aside class="panel">
+                                                            <h2 class="panel-title">Live Results</h2>
+                                                            <div class="stats-head">
+                                                                <div class="stats-box">
+                                                                    <span class="stats-label">Total Votes</span>
+                                                                    <span class="stats-value">
+                                                                        <%= poll.totalVote || 0 %>
+                                                                    </span>
+                                                                </div>
+                                                                <div class="stats-box">
+                                                                    <span class="stats-label">Total Options</span>
+                                                                    <span class="stats-value">
+                                                                        <%= poll.options ? poll.options.length : 0 %>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="results-list">
+                                                                <% if (pollResult.length> 0) { %>
+                                                                    <% pollResult.forEach(function(item) { %>
+                                                                        <div class="result-item">
+                                                                            <div class="result-top">
+                                                                                <span class="result-name">
+                                                                                    <%= item.name %>
+                                                                                </span>
+                                                                                <span class="result-numbers">
+                                                                                    <% if (shouldShowPercentage) { %>
+                                                                                        <%= item.vote %> vote • <%=
+                                                                                                item.percentage.toFixed(1)
+                                                                                                %>%
+                                                                                                <% } else { %>
+                                                                                                    <%= item.vote %>
+                                                                                                        vote
+                                                                                                        <% } %>
+                                                                                </span>
+                                                                            </div>
+                                                                            <% if (shouldShowPercentage) { %>
+                                                                                <div class="progress-track">
+                                                                                    <div class="progress-bar"
+                                                                                        data-percentage="<%= item.percentage %>">
+                                                                                    </div>
+                                                                                </div>
+                                                                                <% } %>
+                                                                        </div>
+                                                                        <% }); %>
+                                                                            <% } else { %>
+                                                                                <div class="empty-state">
+                                                                                    <h2>No result yet</h2>
+                                                                                    <p>Vote distribution will appear
+                                                                                        here once
+                                                                                        participants submit their
+                                                                                        opinions.</p>
+                                                                                </div>
+                                                                                <% } %>
+                                                            </div>
+
+                                                            <h2 class="panel-title">Poll Summary</h2>
+                                                            <div class="meta-list">
+                                                                <div class="meta-item">
+                                                                    <span class="meta-label">Poll Title</span>
+                                                                    <div class="meta-value">
+                                                                        <%= poll.title %>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="meta-item">
+                                                                    <span class="meta-label">Description</span>
+                                                                    <div class="meta-value">
+                                                                        <%= poll.description
+                                                                            || "No description available" %>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="meta-item">
+                                                                    <span class="meta-label">Total Options</span>
+                                                                    <div class="meta-value">
+                                                                        <%= poll.options ? poll.options.length : 0 %>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </aside>
                                                     </div>
-                                                </div>
-                                                <div class="meta-item">
-                                                    <span class="meta-label">Description</span>
-                                                    <div class="meta-value">
-                                                        <%= poll.description || "No description available" %>
-                                                    </div>
-                                                </div>
-                                                <div class="meta-item">
-                                                    <span class="meta-label">Total Options</span>
-                                                    <div class="meta-value">
-                                                        <%= poll.options ? poll.options.length : 0 %>
-                                                    </div>
+                                    </section>
+                                    <% } else { %>
+                                        <section class="hero-card">
+                                            <div class="empty-state">
+                                                <h2>Poll not found</h2>
+                                                <p>The poll you are trying to open does not exist or has been removed.
+                                                </p>
+                                                <div class="actions" style="justify-content: center; margin-top: 20px;">
+                                                    <a class="btn btn-primary" href="/polls">Back to Poll List</a>
                                                 </div>
                                             </div>
-                                        </aside>
-                                    </div>
-                    </section>
-                    <% } else { %>
-                        <section class="hero-card">
-                            <div class="empty-state">
-                                <h2>Poll not found</h2>
-                                <p>The poll you are trying to open does not exist or has been removed.</p>
-                                <div class="actions" style="justify-content: center; margin-top: 20px;">
-                                    <a class="btn btn-primary" href="/polls">Back to Poll List</a>
-                                </div>
-                            </div>
-                        </section>
-                        <% } %>
+                                        </section>
+                                        <% } %>
         </div>
     </div>
 
